@@ -70,7 +70,10 @@ function refreshList(contacts) {
         }
     })
 }
-// listContacts()
-// getContactById(3)
-// removeContact(3)
-// addContact('taras', 'taras@mail.com', '0967744558')
+
+module.exports = {
+    listContacts,
+    getContactById,
+    removeContact,
+    addContact,
+}
