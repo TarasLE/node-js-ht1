@@ -23,7 +23,7 @@ function getContactById(contactId) {
         const contacts = JSON.parse(data)
         contactId < 0 || contactId > contacts.length
             ? console.log('check contactId and try again')
-            : console.log(contacts.find((contact) => contact.id === contactId))
+            : console.log(contacts.find((contact) => contact.id == contactId))
     })
 }
 
@@ -35,7 +35,7 @@ function removeContact(contactId) {
         }
 
         const newList = JSON.parse(data).filter(
-            (contact) => contact.id !== contactId
+            (contact) => contact.id != contactId
         )
 
         refreshList(newList)
