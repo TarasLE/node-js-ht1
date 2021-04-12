@@ -1,11 +1,13 @@
 const fs = require('fs')
+const { loadavg } = require('os')
 const path = require('path')
 const generateId = require('shortid')
+const { promises: fsPromise } = fs
 
-const contactsPath = path.join(__dirname, './db/contacts.json')
-
+const contactsPath = path.join(__dirname, 'db', 'contacts.json')
+let contactsLet
 function listContacts() {
-    fs.readFile(contactsPath, 'utf8', (err, data) => {
+    return fs.readFile(contactsPath, 'utf8', (err, data) => {
         if (err) {
             console.log(err)
             return
@@ -15,60 +17,59 @@ function listContacts() {
 }
 
 function getContactById(contactId) {
-    fs.readFile(contactsPath, (err, data) => {
-        if (err) {
-            console.log(err)
-            return
-        }
-        const contacts = JSON.parse(data)
-        contactId < 0 || contactId > contacts.length
-            ? console.log('check contactId and try again')
-            : console.log(contacts.find((contact) => contact.id == contactId))
-    })
+    try {
+        fs.readFile(contactsPath, (err, data) => {
+            if (err) {
+                console.log(err)
+                return
+            }
+            const contacts = JSON.parse(data)
+            console.log(contacts.find((contact) => contact.id == contactId))
+        })
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 
-function removeContact(contactId) {
-    fs.readFile(contactsPath, (err, data) => {
-        if (err) {
-            console.log(err)
-            return
-        }
-
-        const newList = JSON.parse(data).filter(
-            (contact) => contact.id != contactId
-        )
-
-        refreshList(newList)
-    })
+async function removeContact(contactId) {
+    try {
+        fs.readFile(contactsPath, async (err, data) => {
+            if (err) {
+                console.log(err)
+                return
+            }
+            const contacts = JSON.parse(data)
+            const newList = contacts.filter(
+                (contact) => contact.id !== contactId
+            )
+            await fsPromise.writeFile(contactsPath, JSON.stringify(newList))
+        })
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 
 function addContact(name, email, phone) {
-    fs.readFile(contactsPath, (err, data) => {
-        if (err) {
-            console.log(err)
-            return
-        }
-        const newList = JSON.parse(data)
-
-        const newContact = {
-            id: generateId(),
-            name,
-            email,
-            phone,
-        }
-
-        newList.push(newContact)
-        refreshList(newList)
-    })
-}
-
-function refreshList(contacts) {
-    fs.writeFile(contactsPath, JSON.stringify(contacts), (err) => {
-        if (err) {
-            console.log(err)
-            return
-        }
-    })
+    try {
+        fs.readFile(contactsPath, async (err, data) => {
+            if (err) {
+                console.log(err)
+                return
+            }
+            const contacts = JSON.parse(data)
+            const newList = contacts
+            const newContact = {
+                id: generateId(),
+                name,
+                email,
+                phone,
+            }
+            newList.push(newContact)
+            await fsPromise.writeFile(contactsPath, JSON.stringify(newList))
+        })
+    } catch (error) {
+        console.log(error.message)
+    }
 }
 
 module.exports = {
